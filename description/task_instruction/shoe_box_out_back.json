@@ -1,0 +1,11 @@
+{
+  "full_description": "put the shoe into the shoe box and then move it back out",
+  "schema": "{A} denotes the manipulated object",
+  "preference": "Use the natural task description without exposing hidden state variables.",
+  "seen": [
+    "Put {A} into {B}, then move it back out."
+  ],
+  "unseen": [
+    "Move {A} into {B}, then return it outside."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "full_description": "move the bread to the skillet and then back to the plate",
+  "schema": "{A} denotes the bread, {B} denotes the skillet, {C} denotes the plate",
+  "preference": "Use the natural task description without exposing hidden state variables.",
+  "seen": [
+    "Move {A} to {B}, then back to {C}."
+  ],
+  "unseen": [
+    "Put {A} on {B}, then return it to {C}."
+  ]
+}

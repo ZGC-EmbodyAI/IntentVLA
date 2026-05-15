@@ -1,0 +1,19 @@
+{
+  "full_description": "use the specified hand to move the block to the other grid and then return it",
+  "schema": "{A} denotes the block and {B} denotes the specified hand. The instruction intentionally does not reveal grid colors or locations.",
+  "preference": "Mention the specified hand, but do not reveal grid colors or locations.",
+  "seen": [
+    "Use {B} to move {A} to the other grid, then return it.",
+    "Use {B} to place {A} on the other grid, then put it back.",
+    "Use {B} to move the cube away and then return it to the start grid.",
+    "Use {B} to move {A} to the other grid and back.",
+    "Use {B} to transfer {A} to the other grid, then restore it."
+  ],
+  "unseen": [
+    "With {B}, move {A} to the other grid and back.",
+    "Use {B} to put {A} on the other grid, then return it.",
+    "Use {B} to carry the cube across and bring it back.",
+    "Move {A} to the other grid and back using {B}.",
+    "Use {B} to complete the out-and-back block move."
+  ]
+}

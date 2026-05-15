@@ -1,0 +1,14 @@
+{
+  "full_description": "use the specified hand to move the block from one colored area to the other colored area",
+  "schema": "{A} denotes the block. {B} denotes the specified hand. {C} denotes the target area.",
+  "preference": "Mention moving the block from one colored area to the other with the specified hand.",
+  "seen": [
+    "Use {B} to move {A} onto {C}.",
+    "Pick up {A} with {B} and place it on the other colored area.",
+    "Move {A} from its current colored area to the other one using {B}."
+  ],
+  "unseen": [
+    "With {B}, transfer {A} to {C}.",
+    "Move {A} onto {C} using {B}."
+  ]
+}

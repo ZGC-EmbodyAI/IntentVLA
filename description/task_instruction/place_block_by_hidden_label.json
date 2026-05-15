@@ -1,0 +1,19 @@
+{
+  "full_description": "use the specified hand to pick up the block, inspect the hidden back color mark, and place it on the matching colored target area",
+  "schema": "{A} denotes the back-color-marked block, {B} denotes the matching colored target area, and {C} denotes the specified hand. The instruction does not reveal the hidden back color or the distractor target color.",
+  "preference": "Mention the specified hand and matching colored target area, but do not reveal which color is correct.",
+  "seen": [
+    "Use {C} to inspect {A} and place it on {B}.",
+    "Use {C} to pick up {A}, check its hidden back color, and move it onto {B}.",
+    "With {C}, look at the back color of {A} and place it on the matching target area {B}.",
+    "Use {C} to inspect {A} and sort it to {B}.",
+    "Use {C} to rotate {A} briefly, identify its back color, and place it on {B}."
+  ],
+  "unseen": [
+    "With {C}, check the hidden back color on {A} and place it onto {B}.",
+    "Use {C} to lift {A}, inspect its back marker, and set it on {B}.",
+    "Use {C} to examine the rear color of {A} before placing it on {B}.",
+    "With {C}, inspect {A} and move it to the correctly colored area {B}.",
+    "Use {C} to reveal the back color of {A} and then place it onto {B}."
+  ]
+}

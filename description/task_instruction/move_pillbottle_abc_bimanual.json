@@ -1,0 +1,19 @@
+{
+  "full_description": "use both hands to move the pill bottle from one outer pad to the middle pad, then move it to the opposite outer pad",
+  "schema": "{A} denotes the pill bottle. The instruction does not reveal whether the bottle starts on the left or right outer pad.",
+  "preference": "Mention using both hands and the middle transfer, but do not reveal the starting side.",
+  "seen": [
+    "Use both hands to move {A} to the middle pad, then to the opposite outer pad.",
+    "Move {A} through the center pad and place it on the opposite side using both hands.",
+    "Use both hands to transfer {A} to the center pad and then to the other outer pad.",
+    "Move {A} to the middle area first, then carry it to the opposite outer pad with both hands.",
+    "Use both hands to move {A} across the three pads via the middle pad."
+  ],
+  "unseen": [
+    "With both hands, move {A} to the center pad and then to the opposite outer pad.",
+    "Use both hands to guide {A} through the middle pad to the other side.",
+    "Transfer {A} from one outer pad to the other by stopping at the middle pad with both hands.",
+    "Move {A} onto the center pad first, then place it on the opposite outer pad using both hands.",
+    "Use both hands to carry {A} from an outer pad, through the middle, to the opposite outer pad."
+  ]
+}

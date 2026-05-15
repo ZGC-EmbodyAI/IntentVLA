@@ -1,0 +1,19 @@
+{
+  "full_description": "use the specified hand to move the block to the diagonally opposite grid",
+  "schema": "{A} denotes the block and {B} denotes the specified hand. The instruction intentionally does not reveal the start or target grid.",
+  "preference": "Mention the specified hand, but avoid mentioning grid names.",
+  "seen": [
+    "Use {B} to move {A} to the diagonally opposite grid.",
+    "Use {B} to place {A} on its opposite diagonal grid.",
+    "Use {B} to pick up {A} and put it on the diagonal grid.",
+    "Use {B} to move the cube to the diagonally opposite grid.",
+    "Use {B} to put {A} on the opposite diagonal grid."
+  ],
+  "unseen": [
+    "With {B}, transfer {A} to the opposite corner grid.",
+    "With {B}, put {A} on the grid diagonally across from it.",
+    "Use {B} to move the cube to its diagonal counterpart.",
+    "Use {B} to pick {A} and set it on the opposite diagonal cell.",
+    "Use {B} to place {A} on the diagonally opposite grid."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "full_description": "use both hands to move {A} from one colored side pad to the opposite colored side pad through a middle handover",
+  "schema": "{A} denotes the manipulated object. The instruction does not reveal the starting side.",
+  "preference": "Mention both hands, the side colored pads, and the middle handover, but do not reveal the starting side.",
+  "seen": [
+    "Use both hands to move {A} from one colored side pad to the opposite colored side pad through a middle handover.",
+    "Transfer {A} from one colored side area to the other with a middle handover using both hands."
+  ],
+  "unseen": [
+    "With both hands, pass {A} through the middle and place it on the opposite colored side pad.",
+    "Move {A} from one colored side target to the opposite one by handing it over in the middle."
+  ]
+}

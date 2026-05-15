@@ -1,0 +1,16 @@
+{
+  "full_description": "move {A} from {B} to {C}",
+  "schema": "{A} notifies the phone, {B} notifies the starting phonestand, {C} notifies the target phonestand",
+  "preference": "num of words should not exceed 10",
+  "seen": [
+    "Move {A} from {B} to {C}",
+    "Take {A} off {B} and put it on {C}",
+    "Transfer {A} from {B} onto {C}",
+    "Pick up {A} from {B} and place it on {C}",
+    "Place {A} from {B} onto {C}"
+  ],
+  "unseen": [
+    "Move {A} onto {C}",
+    "Take {A} from {B} to {C}"
+  ]
+}

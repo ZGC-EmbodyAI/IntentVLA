@@ -1,0 +1,11 @@
+{
+  "full_description": "move the stapler from A to B and then back to A",
+  "schema": "{A} denotes the manipulated object",
+  "preference": "Use the natural task description without exposing hidden state variables.",
+  "seen": [
+    "Move {A} from A to B, then back to A."
+  ],
+  "unseen": [
+    "Perform the A-B-A move with {A}."
+  ]
+}

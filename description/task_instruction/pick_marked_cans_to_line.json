@@ -1,0 +1,19 @@
+{
+  "full_description": "use the specified hand to move the briefly marked can onto the colored target pad",
+  "schema": "{A} denotes the can, {B} denotes the colored target pad, and {C} denotes the specified hand.",
+  "preference": "Mention the specified hand and colored target pad, but do not imply multiple cans or multiple stages.",
+  "seen": [
+    "Use {C} to move the marked {A} onto {B}.",
+    "Use {C} to place the highlighted {A} on {B}.",
+    "With {C}, pick up the marked {A} and put it on {B}.",
+    "Use {C} to follow the brief marker and place the selected {A} on {B}.",
+    "With {C}, move the signaled {A} onto {B}."
+  ],
+  "unseen": [
+    "Use {C} to place the flashed {A} onto {B}.",
+    "With {C}, move the briefly signaled {A} onto {B}.",
+    "Use {C} to transfer the highlighted {A} to {B}.",
+    "With {C}, place the cued {A} on {B}.",
+    "Use {C} to pick the selected {A} and set it on {B}."
+  ]
+}

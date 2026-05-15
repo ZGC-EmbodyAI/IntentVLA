@@ -1,0 +1,19 @@
+{
+  "full_description": "use the specified hand to move each briefly marked block onto the colored target line",
+  "schema": "{A} denotes the blocks, {B} denotes the colored target line, and {C} denotes the specified hand. The instruction does not reveal which block will be marked next.",
+  "preference": "Mention the specified hand and colored target line, but do not reveal block order or block identity.",
+  "seen": [
+    "Use {C} to move each marked {A} onto {B}.",
+    "Use {C} to follow the brief marker and place the selected {A} on {B}.",
+    "Use {C} to put every highlighted {A} onto {B}.",
+    "With {C}, move each {A} that gets marked onto {B}.",
+    "Use {C} to watch the short signal and place the chosen {A} on {B}."
+  ],
+  "unseen": [
+    "With {C}, place each flashed target {A} onto {B}.",
+    "Use {C} to collect the marked {A} on {B}.",
+    "Use {C} to move each briefly signaled {A} onto {B}.",
+    "With {C}, place the signaled {A} onto {B}.",
+    "Use {C} to follow the short cue and move each selected {A} onto {B}."
+  ]
+}
