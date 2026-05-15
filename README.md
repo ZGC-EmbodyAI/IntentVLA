@@ -10,7 +10,9 @@
 <a href="https://arxiv.org/abs/2605.14712">
   <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2605.14712-b31b1b.svg">
 </a>
-<img alt="Benchmark" src="https://img.shields.io/badge/Benchmark-AliasBench-orange">
+<a href="#aliasbench">
+  <img alt="Benchmark" src="https://img.shields.io/badge/Benchmark-AliasBench-orange">
+</a>
 <img alt="Model Code" src="https://img.shields.io/badge/Model%20Code-Coming%20Soon-lightgrey">
 
 **Shijie Lian**<sup>1,2,*</sup>
@@ -137,12 +139,6 @@ Copy-Item -Recurse -Force .\description\* C:\path\to\RoboTwin\description\
 Copy-Item -Recurse -Force .\envs\* C:\path\to\RoboTwin\envs\
 Copy-Item -Force .\task_config\demo_clean.yml C:\path\to\RoboTwin\task_config\demo_clean.yml
 Copy-Item -Force .\task_config\_eval_step_limit.yml C:\path\to\RoboTwin\task_config\_eval_step_limit.yml
-```
-
-For the local preparation used in this project, the RoboTwin root is:
-
-```text
-C:\Users\admin\Desktop\BriefVLA\RoboTwin
 ```
 
 ## Usage
