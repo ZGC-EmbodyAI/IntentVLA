@@ -13,7 +13,6 @@
 <a href="#aliasbench">
   <img alt="Benchmark" src="https://img.shields.io/badge/Benchmark-AliasBench-orange">
 </a>
-<img alt="Model Code" src="https://img.shields.io/badge/Model%20Code-Coming%20Soon-lightgrey">
 
 **Shijie Lian**<sup>1,2,*</sup>
 **Bin Yu**<sup>2,4,*</sup>
