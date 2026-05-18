@@ -10,7 +10,8 @@ class pick_marked_blocks_to_line(Base_Task):
     def setup_demo(self, **kwags):
         super()._init_task_env_(**kwags)
         self.eval_marker_stage_idx = -1
-        self._show_eval_marker_for_stage(0)
+        self.eval_marker_obs_remaining = 0
+        self._hide_marker()
 
     def load_actors(self):
         self.arm_tag = ArmTag("left" if np.random.randint(0, 2) == 0 else "right")
@@ -75,6 +76,7 @@ class pick_marked_blocks_to_line(Base_Task):
 
         self.target_order = np.random.permutation(len(self.blocks)).tolist()
         self.eval_stage_idx = 0
+        self.eval_marker_obs_remaining = 3
 
         for center in self.target_centers:
             self.add_prohibit_area(sapien.Pose(center.tolist(), [1, 0, 0, 0]), padding=0.08)
@@ -164,58 +166,42 @@ class pick_marked_blocks_to_line(Base_Task):
             if not self.plan_success:
                 print(f"Failed to place the block {stage_idx} at the target position.")
                 return self.info
-            block_pos = block.get_pose().p
             self.move(self.move_by_displacement(arm_tag=self.arm_tag, z=0.07, move_axis="arm"))
-            self.eval_stage_idx = stage_idx + 1
-            if self.eval_stage_idx < len(self.target_order):
-                next_target_id = self.target_order[self.eval_stage_idx]
-                self._set_aliasbench_trace(
-                    intent=f"target_block_{next_target_id}",
-                    destination=f"slot_{self.eval_stage_idx}",
-                    ambiguous=False,
-                    control=True,
-                )
             self.move(self.back_to_origin(arm_tag=self.arm_tag))
             if not self.plan_success:
                 print(f"Failed to return the arm to the origin after placing block {stage_idx}.")
                 return self.info
 
+            self.eval_stage_idx = stage_idx + 1
+
         self._set_aliasbench_trace(intent="done", destination="complete", ambiguous=False, control=False)
         self.info["info"] = {
-            "{A}": "block",
-            "{B}": "colored pads",
+            "{A}": "briefly marked blocks",
+            "{B}": "line of colored pads",
             "{C}": f"{self.arm_tag} hand",
         }
         return self.info
 
+    def _set_marker_visible_for_actor(self, actor):
+        marker_pose = actor.get_pose().p.copy()
+        marker_pose[2] = 0.742 + self.table_z_bias
+        self.marker.set_pose(sapien.Pose(marker_pose.tolist(), [1, 0, 0, 0]))
+
+    def _hide_marker(self):
+        self.marker.set_pose(self.marker_hide_pose)
 
     def _show_eval_marker_for_stage(self, stage_idx):
         if stage_idx < 0 or stage_idx >= len(self.target_order):
-            self.marker.set_pose(self.marker_hide_pose)
+            self._hide_marker()
             return
         target_id = self.target_order[stage_idx]
         self._show_marker(self.blocks[target_id])
         self.eval_marker_stage_idx = stage_idx
 
     def _show_marker(self, block):
-        marker_pose = block.get_pose().p.copy()
-        marker_pose[2] = 0.742 + self.table_z_bias
-        self.marker.set_pose(sapien.Pose(marker_pose.tolist(), [1, 0, 0, 0]))
-        self._wait_marker_steps(350)
-        self.marker.set_pose(self.marker_hide_pose)
-
-    def _is_marked_block_grasped(self, target_id):
-        lifted_threshold = 0.741 + self.block_half_size + self.table_z_bias + 0.05
-        other_threshold = 0.741 + self.block_half_size + self.table_z_bias + 0.03
-        target_pos = self.blocks[target_id].get_pose().p
-        if target_pos[2] < lifted_threshold:
-            return False
-        for idx, other_block in enumerate(self.blocks):
-            if idx == target_id:
-                continue
-            if other_block.get_pose().p[2] > other_threshold:
-                return False
-        return True
+        self._set_marker_visible_for_actor(block)
+        self._wait_marker_steps(500)
+        self._hide_marker()
 
     def _wait_marker_steps(self, step_num):
         save_freq = self.save_freq
@@ -230,9 +216,17 @@ class pick_marked_blocks_to_line(Base_Task):
         if save_freq is not None:
             self._take_picture()
 
+    def get_obs(self):
+        if self.eval_mode and self.eval_stage_idx < len(self.target_order) and self.eval_marker_obs_remaining > 0:
+            target_id = self.target_order[self.eval_stage_idx]
+            self._set_marker_visible_for_actor(self.blocks[target_id])
+            obs = super().get_obs()
+            self._hide_marker()
+            self.eval_marker_obs_remaining -= 1
+            return obs
+        return super().get_obs()
+
     def check_success(self):
-        if self.eval_stage_idx < len(self.target_order) and self.eval_marker_stage_idx != self.eval_stage_idx:
-            self._show_eval_marker_for_stage(self.eval_stage_idx)
         expected_z = 0.741 + self.block_half_size + self.table_z_bias
         if self.eval_stage_idx < len(self.target_order):
             stage_idx = self.eval_stage_idx
@@ -248,9 +242,9 @@ class pick_marked_blocks_to_line(Base_Task):
             if stage_ok:
                 self.eval_stage_idx += 1
                 if self.eval_stage_idx < len(self.target_order):
-                    self._show_eval_marker_for_stage(self.eval_stage_idx)
+                    self.eval_marker_obs_remaining = 3
                 else:
-                    self.marker.set_pose(self.marker_hide_pose)
+                    self._hide_marker()
 
         final_ok = True
         for stage_idx, target_id in enumerate(self.target_order):
