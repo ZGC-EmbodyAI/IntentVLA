@@ -10,11 +10,14 @@ class pick_marked_cans_to_line(Base_Task):
     def setup_demo(self, **kwags):
         super()._init_task_env_(**kwags)
         self.eval_marker_stage_idx = -1
-        self._show_eval_marker_for_stage(0)
+        self.eval_marker_obs_remaining = 0
+        self._hide_marker()
 
     def load_actors(self):
         self.arm_tag = ArmTag("left" if np.random.randint(0, 2) == 0 else "right")
         x_sign = -1 if self.arm_tag == "left" else 1
+        self.can_radius = 0.033
+        self.can_height = 0.10
         self.pad_half_size = [0.05, 0.05, 0.002]
         self.marker_half_size = [0.045, 0.045, 0.002]
         self.marker_color = self._sample_marker_color()
@@ -22,16 +25,18 @@ class pick_marked_cans_to_line(Base_Task):
         self.pad_color = self._sample_pad_color()
 
         source_xy = [
-            [x_sign * 0.15, 0.03],
+            [x_sign * 0.22, 0.03],
+            [x_sign * 0.08, 0.03],
         ]
         self.source_centers = []
         for x, y in source_xy:
             rand_x = x + np.random.uniform(-0.01, 0.01)
             rand_y = y + np.random.uniform(-0.01, 0.01)
-            self.source_centers.append(np.array([rand_x, rand_y, 0.741 + 0.02]))
+            self.source_centers.append(np.array([rand_x, rand_y, 0.745]))
 
         self.target_centers = [
-            np.array([x_sign * 0.12, -0.10, 0.742]),
+            np.array([x_sign * 0.18, -0.10, 0.742]),
+            np.array([x_sign * 0.06, -0.10, 0.742]),
         ]
 
         self.target_pads = []
@@ -45,15 +50,15 @@ class pick_marked_cans_to_line(Base_Task):
             )
             self.target_pads.append(pad)
 
-        can_ids = np.random.choice([0, 1, 2, 3, 5, 6], 1, replace=False)
         self.cans = []
+        can_ids = np.random.choice([0, 1, 2, 3, 5, 6], 2, replace=False)
         for idx, (center, can_id) in enumerate(zip(self.source_centers, can_ids)):
             can = create_actor(
                 scene=self,
                 pose=sapien.Pose(center.tolist(), [0.5, 0.5, 0.5, 0.5]),
                 modelname="071_can",
                 convex=True,
-                model_id=int(can_id)
+                model_id=int(can_id),
             )
             can.set_mass(0.05)
             self.cans.append(can)
@@ -66,8 +71,9 @@ class pick_marked_cans_to_line(Base_Task):
             name="target_marker",
         )
 
-        self.target_order = [0]
+        self.target_order = np.random.permutation(len(self.cans)).tolist()
         self.eval_stage_idx = 0
+        self.eval_marker_obs_remaining = 3
 
         for center in self.target_centers:
             self.add_prohibit_area(sapien.Pose(center.tolist(), [1, 0, 0, 0]), padding=0.08)
@@ -143,44 +149,41 @@ class pick_marked_cans_to_line(Base_Task):
                 print(f"Failed to release the can {stage_idx}.")
                 return self.info
             self.move(self.move_by_displacement(arm_tag=self.arm_tag, z=0.10, move_axis="world"))
-            self.eval_stage_idx = stage_idx + 1
-            if self.eval_stage_idx < len(self.target_order):
-                next_target_id = self.target_order[self.eval_stage_idx]
-                self._set_aliasbench_trace(
-                    intent=f"target_can_{next_target_id}",
-                    destination=f"slot_{self.eval_stage_idx}",
-                    ambiguous=False,
-                    control=True,
-                )
-                self._show_eval_marker_for_stage(self.eval_stage_idx)
             self.move(self.back_to_origin(arm_tag=self.arm_tag))
             if not self.plan_success:
                 print(f"Failed to return the arm to the origin after placing can {stage_idx}.")
                 return self.info
 
+            self.eval_stage_idx = stage_idx + 1
+
         self._set_aliasbench_trace(intent="done", destination="complete", ambiguous=False, control=False)
         self.info["info"] = {
             "{A}": "071_can",
-            "{B}": "colored pad",
+            "{B}": "colored pads",
             "{C}": f"{self.arm_tag} hand",
         }
         return self.info
 
+    def _set_marker_visible_for_actor(self, actor):
+        marker_pose = actor.get_pose().p.copy()
+        marker_pose[2] = 0.742 + self.table_z_bias
+        self.marker.set_pose(sapien.Pose(marker_pose.tolist(), [1, 0, 0, 0]))
+
+    def _hide_marker(self):
+        self.marker.set_pose(self.marker_hide_pose)
 
     def _show_eval_marker_for_stage(self, stage_idx):
         if stage_idx < 0 or stage_idx >= len(self.target_order):
-            self.marker.set_pose(self.marker_hide_pose)
+            self._hide_marker()
             return
         target_id = self.target_order[stage_idx]
         self._show_marker(self.cans[target_id])
         self.eval_marker_stage_idx = stage_idx
 
     def _show_marker(self, can):
-        marker_pose = can.get_pose().p.copy()
-        marker_pose[2] = 0.742 + self.table_z_bias
-        self.marker.set_pose(sapien.Pose(marker_pose.tolist(), [1, 0, 0, 0]))
-        self._wait_marker_steps(350)
-        self.marker.set_pose(self.marker_hide_pose)
+        self._set_marker_visible_for_actor(can)
+        self._wait_marker_steps(500)
+        self._hide_marker()
 
     def _wait_marker_steps(self, step_num):
         save_freq = self.save_freq
@@ -195,9 +198,17 @@ class pick_marked_cans_to_line(Base_Task):
         if save_freq is not None:
             self._take_picture()
 
+    def get_obs(self):
+        if self.eval_mode and self.eval_stage_idx < len(self.target_order) and self.eval_marker_obs_remaining > 0:
+            target_id = self.target_order[self.eval_stage_idx]
+            self._set_marker_visible_for_actor(self.cans[target_id])
+            obs = super().get_obs()
+            self._hide_marker()
+            self.eval_marker_obs_remaining -= 1
+            return obs
+        return super().get_obs()
+
     def check_success(self):
-        if self.eval_stage_idx < len(self.target_order) and self.eval_marker_stage_idx != self.eval_stage_idx:
-            self._show_eval_marker_for_stage(self.eval_stage_idx)
         if self.eval_stage_idx < len(self.target_order):
             stage_idx = self.eval_stage_idx
             target_id = self.target_order[stage_idx]
@@ -211,9 +222,9 @@ class pick_marked_cans_to_line(Base_Task):
             if stage_ok:
                 self.eval_stage_idx += 1
                 if self.eval_stage_idx < len(self.target_order):
-                    self._show_eval_marker_for_stage(self.eval_stage_idx)
+                    self.eval_marker_obs_remaining = 3
                 else:
-                    self.marker.set_pose(self.marker_hide_pose)
+                    self._hide_marker()
 
         final_ok = True
         for stage_idx, target_id in enumerate(self.target_order):
