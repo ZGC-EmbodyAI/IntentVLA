@@ -6,7 +6,7 @@ from ._ais_benchmark_common import use_fixed_aliasbench_colors, fixed_pad_colors
 
 
 class pick_marked_blocks_to_line(Base_Task):
-    EVAL_MARKER_OBS_FRAMES = 50
+    EVAL_MARKER_OBS_FRAMES = 20
 
 
     def setup_demo(self, **kwags):
