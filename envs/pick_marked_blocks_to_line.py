@@ -6,11 +6,13 @@ from ._ais_benchmark_common import use_fixed_aliasbench_colors, fixed_pad_colors
 
 
 class pick_marked_blocks_to_line(Base_Task):
+    EVAL_MARKER_OBS_FRAMES = 50
+
 
     def setup_demo(self, **kwags):
         super()._init_task_env_(**kwags)
         self.eval_marker_stage_idx = -1
-        self.eval_marker_obs_remaining = 0
+        self.eval_marker_obs_remaining = self.EVAL_MARKER_OBS_FRAMES
         self._hide_marker()
 
     def load_actors(self):
@@ -76,7 +78,7 @@ class pick_marked_blocks_to_line(Base_Task):
 
         self.target_order = np.random.permutation(len(self.blocks)).tolist()
         self.eval_stage_idx = 0
-        self.eval_marker_obs_remaining = 3
+        self.eval_marker_obs_remaining = self.EVAL_MARKER_OBS_FRAMES
 
         for center in self.target_centers:
             self.add_prohibit_area(sapien.Pose(center.tolist(), [1, 0, 0, 0]), padding=0.08)
@@ -242,7 +244,7 @@ class pick_marked_blocks_to_line(Base_Task):
             if stage_ok:
                 self.eval_stage_idx += 1
                 if self.eval_stage_idx < len(self.target_order):
-                    self.eval_marker_obs_remaining = 3
+                    self.eval_marker_obs_remaining = self.EVAL_MARKER_OBS_FRAMES
                 else:
                     self._hide_marker()
 
