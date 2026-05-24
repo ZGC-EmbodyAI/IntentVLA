@@ -55,7 +55,7 @@ place_stapler_aba_pad: 900
 shoe_box_out_back: 900
 
 place_block_opposite_grid: 500
-place_block_other_grid: 350
+place_block_other_grid: 500
 place_phone_other_stand: 700
 
 bimanual_handover_roller_lr: 900
