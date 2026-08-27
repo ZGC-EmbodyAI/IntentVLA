@@ -36,6 +36,7 @@
 
 ## News
 
+- [Aug 2026] 🚀 IntentVLA has been accepted to the main conference of EMNLP 2026.
 - [May 2026] We release the **AliasBench** benchmark code for evaluating short-horizon observation aliasing in robot manipulation.
 - IntentVLA model training and evaluation code is **coming soon**.
 
@@ -177,13 +178,10 @@ AliasBench is built on top of **RoboTwin2**. We thank the RoboTwin team for rele
 If you find this project useful, please cite our paper:
 
 ```bibtex
-@misc{IntentVLA_2026_arXiv,
+@inproceedings{IntentVLA_2026_EMNLP,
   title         = {IntentVLA: Short-Horizon Intent Modeling for Aliased Robot Manipulation},
+  booktitle     = {The 2026 Conference on Empirical Methods in Natural Language Processing},
   author        = {Lian, Shijie and Yu, Bin and Lin, Xiaopeng and Shen, Zhaolong and Yang, Laurence Tianruo and Jin, Yurun and Liu, Haishan and Wu, Changti and Yuan, Hang and Huang, Cong and Chen, Kai},
   year          = {2026},
-  eprint        = {2605.14712},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.RO},
-  url           = {https://arxiv.org/abs/2605.14712}
 }
 ```
