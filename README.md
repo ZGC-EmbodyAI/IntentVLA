@@ -35,8 +35,8 @@
 ---
 
 ## News
-
-- [Aug 2026] 🚀 IntentVLA has been accepted to the main conference of **EMNLP 2026**.
+- [Sep 2026] 🚀 IntentVLA has been accepted as an **Oral** Presentation at EMNLP 2026!
+- [Aug 2026] IntentVLA has been accepted to the main conference of **EMNLP 2026**.
 - [May 2026] We release the **AliasBench** benchmark code for evaluating short-horizon observation aliasing in robot manipulation.
 - IntentVLA model training and evaluation code is **coming soon**.
 
