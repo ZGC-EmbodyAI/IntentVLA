@@ -113,7 +113,6 @@ class bimanual_handover_roller_lr(Base_Task):
         )
         if not self.plan_success:
             return False
-        self.eval_first_grasp = True
 
         self.move(self.move_by_displacement(arm_tag=self.first_arm_tag, z=0.08, move_axis='world'))
         if not self.plan_success:
@@ -125,9 +124,6 @@ class bimanual_handover_roller_lr(Base_Task):
         if not self.plan_success:
             return False
 
-        roller_pos = self.roller.get_pose().p
-        if abs(roller_pos[0]) < 0.03:
-            self.eval_visited_middle = True
         return True
 
     def _second_arm_handover_and_place(self):
@@ -142,12 +138,10 @@ class bimanual_handover_roller_lr(Base_Task):
         self.move(grasp_action)
         if not self.plan_success:
             return False
-        self.eval_second_grasp = True
 
         self.move(self.open_gripper(self.first_arm_tag))
         if not self.plan_success:
             return False
-        self.eval_handover_release = True
 
         self.move(self.back_to_origin(arm_tag=self.first_arm_tag))
         if not self.plan_success:
@@ -163,7 +157,10 @@ class bimanual_handover_roller_lr(Base_Task):
         if not self.plan_success:
             return False
 
-        self.move(self.move_by_displacement(arm_tag=self.second_arm_tag, z=-0.04, move_axis='world'))
+        # Lower the roller onto the pad before release instead of dropping it
+        # from the handover height, which can fling it beyond the target.
+        dz_to_pad = self.final_pad_center[2] + 0.005 - self.roller.get_pose().p[2]
+        self.move(self.move_by_displacement(arm_tag=self.second_arm_tag, z=dz_to_pad, move_axis='world'))
         if not self.plan_success:
             return False
 
@@ -172,17 +169,66 @@ class bimanual_handover_roller_lr(Base_Task):
             return False
         self.move(self.move_by_displacement(arm_tag=self.second_arm_tag, z=0.06, move_axis='world'))
 
-        roller_pos = self.roller.get_pose().p
-        if np.all(np.abs(roller_pos[:2] - self.final_pad_center[:2]) < np.array([0.10, 0.05])):
-            self.eval_reached_final = True
         return self.plan_success
 
-    def check_success(self):
+    def move(self, *args, **kwargs):
+        result = super().move(*args, **kwargs)
+        # Expert moves do not call check_success at each physics step.
+        self._update_handover_progress()
+        return result
+
+    def _roller_gripper_contacts(self, side):
+        """Count distinct finger links touching the roller for one arm.
+
+        Use entities, not link names: two single-arm robots can share names.
+        """
+        fingers = [joint.child_link.entity for joint, _, _ in getattr(self.robot, f"{side}_gripper")]
+        articulation = getattr(self.robot, f"{side}_entity")
+        fixed_names = getattr(self.robot, f"{side}_fix_gripper_name")
+        for link in articulation.get_links():
+            if link.name in fixed_names and link.entity not in fingers:
+                fingers.append(link.entity)
+        touching = set()
+        for contact in self.scene.get_contacts():
+            if not contact.points:
+                continue
+            a, b = (body.entity for body in contact.bodies)
+            other = b if a == self.roller.actor else a if b == self.roller.actor else None
+            for index, finger in enumerate(fingers):
+                if other == finger:
+                    touching.add(index)
+        return len(touching) >= 2
+
+    def _update_handover_progress(self):
         pos = self.roller.get_pose().p
-        at_final = np.all(np.abs(pos[:2] - self.final_pad_center[:2]) < np.array([0.07, 0.07]))
-        if at_final:
+        first = str(self.first_arm_tag)
+        second = str(self.second_arm_tag)
+        first_open = getattr(self, f"is_{first}_gripper_open")()
+        second_open = getattr(self, f"is_{second}_gripper_open")()
+        first_holds = not first_open and self._roller_gripper_contacts(first)
+        second_holds = not second_open and self._roller_gripper_contacts(second)
+        at_middle = (abs(pos[0] - self.middle_center[0]) < 0.03
+                     and abs(pos[1] - self.middle_center[1]) < 0.07
+                     and pos[2] > self.middle_center[2] - 0.03)
+
+        if first_holds:
+            self.eval_first_grasp = True
+        if self.eval_first_grasp and first_holds and at_middle:
+            self.eval_visited_middle = True
+        if self.eval_visited_middle and at_middle and first_holds and second_holds:
+            self.eval_second_grasp = True
+        if self.eval_second_grasp and first_open and second_holds:
+            self.eval_handover_release = True
+
+        at_final = (np.all(np.abs(pos[:2] - self.final_pad_center[:2]) < np.array([0.07, 0.07]))
+                    and abs(pos[2] - self.final_pad_center[2]) < 0.04)
+        if self.eval_handover_release and at_final and first_open and second_open:
             self.eval_reached_final = True
-        return (
+        return at_final
+
+    def check_success(self):
+        at_final = self._update_handover_progress()
+        return bool(
             self.eval_first_grasp
             and self.eval_visited_middle
             and self.eval_second_grasp
